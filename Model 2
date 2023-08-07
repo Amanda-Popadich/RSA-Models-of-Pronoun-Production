@@ -1,0 +1,53 @@
+var names = ['john', 'bob']
+
+var utterances = ['john', 'he', 'bob']
+
+// meaning function to interpret the utterances produced
+var meaning = function(utterance, referent){
+  isName(utterance, referent) ? utterance == referent : true
+}
+
+var isName = function(utterance, referent) {
+  return (utterance == 'bob' || utterance == 'john')
+}
+
+//Literal Speaker
+var S0 = function(intendedReferent, topic, ICtype, NP1, NP2){
+  Infer({model: function(){
+     var utteranceType = topic != intendedReferent ? 
+     flip(.2) ? 'pronoun' : 'name' : 
+     flip(.8) ? 'pronoun' : 'name' 
+     var utterance = utteranceType == 'pronoun' ? 'he' : uniformDraw(names)
+     condition(meaning(utterance, intendedReferent))
+     return utterance
+  }})
+}
+
+//Pragmatic Listener
+var L1 = function(utterance, topic, ICtype, NP1, NP2){
+  Infer({model: function(){
+    var prefRef = ICtype == 'IC1'?
+     flip(.75) ? NP1 : NP2 : 
+     flip(.75) ? NP2 : NP1 
+    observe(S0(prefRef, topic), utterance) 
+    return [prefRef, topic, ICtype, NP1, NP2]
+  }})
+}
+
+// utterance cost function
+var cost = function(utterance) {
+  var cost = utterance == 'he'? 0 : 1
+  return cost;
+};
+
+// set speaker optimality
+var alpha = 0.5
+
+//Pragmatic Speaker
+var S1_cost = function(ref, topic, ICtype, NP1, NP2){
+  Infer({model: function(){
+    var utterance = uniformDraw(utterances)
+    factor(alpha * (L1(utterance, topic, ICtype, NP1, NP2).score([ref, topic, ICtype, NP1, NP2]) - cost(utterance)))
+    return [utterance, topic, ICtype, NP1, NP2]
+  }})
+}

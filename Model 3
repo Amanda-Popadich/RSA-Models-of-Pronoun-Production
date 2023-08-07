@@ -1,6 +1,6 @@
 var names = ['john', 'bob']
 
-var utterances = ['john', 'he', 'bob', 'he']
+var utterances = ['john', 'he', 'bob']
 
 // meaning function to interpret the utterances produced
 var meaning = function(utterance, referent){
@@ -34,14 +34,8 @@ var L1 = function(utterance, topic, ICtype, NP1, NP2){
   }})
 }
 
-// utterance cost function
-var cost = function(utterance) {
-  var cost = utterance == 'he'? 0 : 1
-  return cost;
-};
-
 // set speaker optimality
-var alpha = 1
+var alpha = 0.1
 
 //Pragmatic Speaker
 var S1_noCost = function(ref, topic, ICtype, NP1, NP2){
